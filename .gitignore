@@ -1,0 +1,13 @@
+# Python-generated files
+__pycache__/
+build/
+dist/
+wheels/
+*.egg-info
+*.jpg
+*.jpeg
+*.png
+*.pth
+*.zip
+../else/
+some_img/
