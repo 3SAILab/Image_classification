@@ -77,7 +77,11 @@ class DenseNet(nn.Module):
         out = F.avg_pool2d(out, kernel_size=7, stride=1).view(features.size(0), -1)
         out = self.classifier(out)
         return out
- 
+
+def densenet81(**kwargs):
+    model = DenseNet(num_init_features=64, growth_rate=32, block_config=(6, 8, 16, 8), **kwargs)
+    return model
+
 def densenet121(**kwargs):
     model = DenseNet(num_init_features=64, growth_rate=32, block_config=(6, 12, 24, 16), **kwargs)
     return model
