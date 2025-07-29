@@ -2,6 +2,7 @@ import sys
 import os
 sys.path.append(os.path.dirname(__file__))
 from utils.utils import set_seed, show_model_parameters_num, update_ema, log
+from model_code.densenet import densenet81 as m
 from torch.optim import lr_scheduler
 from tqdm import tqdm
 import matplotlib.pyplot as plt
@@ -78,7 +79,6 @@ else:
 # 在设置好随机种子后，开始导入数据集
 from DataSet.dataloader import random_train_dataloader, random_eval_dataloader, layer_train_dataloader, layer_eval_dataloader
 from visualization.visualization2 import draw_confusion_matrix #, plot_dataset_distribution, 
-from model_code.densenet import densenet81 as m
 
 def train(
     train_loader, 
