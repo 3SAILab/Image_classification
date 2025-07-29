@@ -133,14 +133,14 @@ def train(
             train_loss.append(loss.item())
             step_list.append(epoch * len(train_loader) + batch_index + 1)
 
-            loop.set_postfix(loss=f'{loss.item():.3f}', lr=f'{optimizer.param_groups[0]['lr']:.1e}')
+            loop.set_postfix(loss=f'\033[91m{loss.item():.3f}\033[0m', lr=f'{optimizer.param_groups[0]['lr']:.1e}')
         # 验证
         if epoch == num_epochs - 1:
             eval_loss_item, acc = eval(model, eval_loader, criterion, visual_matrix=True)
         else:
             eval_loss_item, acc = eval(model, eval_loader, criterion)
         
-        logging.info(f"➡️  Epoch {epoch+1}/{num_epochs}, Val Loss: {eval_loss_item:.2f}, Acc: {acc:.2f}")
+        logging.info(f"➡️  Epoch {epoch+1}/{num_epochs}, Val Loss: {eval_loss_item:.2f}, Acc: \033[91m{acc:.2f}\033[0m")
 
         if (acc > max(acc_list) if acc_list else 0) and need_save_model == "y":
             # 保存最佳模型
@@ -162,8 +162,10 @@ def train(
         current_lr = optimizer.param_groups[0]['lr']
         lr_list.append(current_lr)
         scheduler.step()
-
+    
+    logging.info(f"❗ Train Best Acc: \033[91m{max(acc_list):.2f}\033[0m, Best Epoch: \033[91m{epoch_list[acc_list.index(max(acc_list))]}\033[0m")
     logging.info('✅ Train Finished')
+
     # 保存最终模型
     if need_save_model == "y":
         torch.save(
