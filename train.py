@@ -1,6 +1,9 @@
+import sys
+import os
+sys.path.append(os.path.dirname(__file__))
 from DataSet.dataloader import random_train_dataloader, random_eval_dataloader, layer_train_dataloader, layer_eval_dataloader
 from visualization.visualization2 import draw_confusion_matrix #, plot_dataset_distribution, 
-from model_code.squeezenet import squeezenet1_1 as m
+from model_code.vgg import VGG as m
 from torch.optim import lr_scheduler
 from tqdm import tqdm
 import matplotlib.pyplot as plt
@@ -11,37 +14,10 @@ import logging
 import random
 import torch
 import json
-import os
 
 warnings.filterwarnings('ignore')
 plt.rcParams['font.family'] = ['SimHei']
 logging.basicConfig(level = logging.INFO)
-
-log_name = input(
-    """
-    ❗ 输入此次训练需要记录的日志名\n
-    ❗ 输入m表示默认使用模型名称\n
-    ❗ 输入x表示此次训练不记录日志\n
-    ❗ 输入其他表示 模型名称+自定义日志名 ：
-    """
-)
-if log_name != "x":
-    log_name = f"{str(m.__name__)}_{log_name}.txt"
-elif log_name == "m":
-    log_name = f"{str(m.__name__)}.txt"
-
-need_save_model = input(
-    """
-    ❗ 是否需要保存模型?\n
-    ❗ 输入y表示需要保存模型\n
-    ❗ 输入其他表示不需要保存模型\n
-    """
-)
-logging.info(f"✅ 此次训练将保存的日志名为：{log_name}")
-if need_save_model == "y":
-    logging.info(f"✅ 此次训练将保存模型")
-else:
-    logging.info(f"❌ 此次训练将不保存模型")
 
 model_path = os.path.join(os.path.dirname(__file__), "model")
 log_path = os.path.join(os.path.join(os.path.dirname(__file__), "results"), "log")
@@ -56,19 +32,61 @@ lr = config['lr']
 num_classes = config['num_classes']
 num_workers = config['num_workers']
 device = config['device']
-seed = config["seed"]
 
-def set_seed(seed=42):
-    random.seed(seed)
-    np.random.seed(seed)
-    torch.manual_seed(seed)
-    if torch.cuda.is_available():
-        torch.cuda.manual_seed(seed)
-        torch.cuda.manual_seed_all(seed)
-        torch.backends.cudnn.deterministic = True
-        torch.backends.cudnn.benchmark = False
+log_name = input(
+    """
+    ❗ 输入此次训练需要记录的日志名\n
+    ❗ 输入m表示默认使用模型名称\n
+    ❗ 输入x表示此次训练不记录日志\n
+    ❗ 输入其他表示 模型名称+自定义日志名 ：
+    """
+)
 
-set_seed(seed)
+need_save_model = input(
+    """
+    ❗ 是否需要保存模型?\n
+    ❗ 输入y表示需要保存模型\n
+    ❗ 输入其他表示不需要保存模型\n
+    """
+)
+
+need_set_seed = input(
+    """
+    ❗ 是否需要设置并固定config.json中的随机种子?\n
+    ❗ 输入y表示需要设置并固定config.json中的随机种子\n
+    ❗ 输入其他表示不需要设置并固定config.json中的随机种子\n
+    """
+)
+
+if log_name != "x":
+    log_name = f"{str(m.__name__)}_{log_name}.txt"
+elif log_name == "m":
+    log_name = f"{str(m.__name__)}.txt"
+
+if need_set_seed == "y":
+    def set_seed(seed=42):
+        random.seed(seed)
+        np.random.seed(seed)
+        torch.manual_seed(seed)
+        if torch.cuda.is_available():
+            torch.cuda.manual_seed(seed)
+            torch.cuda.manual_seed_all(seed)
+            torch.backends.cudnn.deterministic = True
+            torch.backends.cudnn.benchmark = False
+    seed = config["seed"]
+    set_seed(seed)
+
+logging.info(f"✅ 此次训练将保存的日志名为：{log_name}")
+
+if need_save_model == "y":
+    logging.info(f"✅ 此次训练将保存模型")
+else:
+    logging.info(f"❌ 此次训练将不保存模型")
+
+if need_set_seed == "y":
+    logging.info(f"✅ 此次训练设置并固定随机种子为{seed}")
+else:
+    logging.info(f"❌ 此次训练未设置和固定随机种子")
 
 def log(
     log_path, 
@@ -165,7 +183,7 @@ def train(
         else:
             eval_loss_item, acc = eval(model, eval_loader, criterion)
         
-        logging.info(f"Epoch {epoch+1}/{num_epochs}, Val Loss: {eval_loss_item:.2f}, Acc: {acc:.2f}")
+        logging.info(f"➡️  Epoch {epoch+1}/{num_epochs}, Val Loss: {eval_loss_item:.2f}, Acc: {acc:.2f}")
 
         if (acc > max(acc_list) if acc_list else 0) and need_save_model == "y":
             # 保存最佳模型
@@ -220,7 +238,7 @@ def train(
         # 记录日志
         if log_name != "x":
             log(log_path, log_name, param_num, num_epochs, batch_size, lr, train_loss, eval_loss, acc_list, lr_list, ema_train_loss, ema_eval_loss)
-            logging.info(f"✅ Log saved to {log_path}")
+            logging.info(f"✅ Log saved to {os.path.join(log_path, log_name)}")
 
         plt.figure(figsize=(18,8))
 

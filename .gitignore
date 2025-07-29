@@ -4,10 +4,8 @@ build/
 dist/
 wheels/
 *.egg-info
-*.jpg
-*.jpeg
-*.png
+image/
 *.pth
 *.zip
-../else/
 some_img/
+data_imgs/
