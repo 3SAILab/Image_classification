@@ -2,7 +2,7 @@ import sys
 import os
 sys.path.append(os.path.dirname(__file__))
 from utils.utils import set_seed, show_model_parameters_num, update_ema, log
-from model_code.densenet import densenet81 as m
+from model_code.mobilenetv2 import MobileNetV2 as m
 from torch.optim import lr_scheduler
 from tqdm import tqdm
 import matplotlib.pyplot as plt
@@ -163,7 +163,7 @@ def train(
         lr_list.append(current_lr)
         scheduler.step()
     
-    logging.info(f"❗ Train Best Acc: \033[91m{max(acc_list):.2f}\033[0m, Best Epoch: \033[91m{epoch_list[acc_list.index(max(acc_list))]}\033[0m")
+    logging.info(f"❗ Train Best Acc: \033[91m{max(acc_list):.2f}\033[0m, Best Epoch: \033[91m{epoch_list[acc_list.index(max(acc_list)) + 1]}\033[0m")
     logging.info('✅ Train Finished')
 
     # 保存最终模型
