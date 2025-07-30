@@ -2,7 +2,6 @@ from DataSet.dataset import index_path_dict, index_small_dict, small_label_idx_d
 from DataSet.dataset_spilt import spilt
 from DataSet.data_transform import transform
 from torch.utils.data import DataLoader, Dataset
-import torch
 from PIL import Image
 import json
 import os
@@ -12,23 +11,12 @@ with open(config_path, 'r') as f:
     config = json.load(f)
 
 batch_size = config['batch_size']
-seed = config["seed"]
-
-def set_seed(seed=42):
-    torch.manual_seed(seed)
-    if torch.cuda.is_available():
-        torch.cuda.manual_seed(seed)
-        torch.cuda.manual_seed_all(seed)
-        torch.backends.cudnn.deterministic = True
-        torch.backends.cudnn.benchmark = False
-
-set_seed(seed)
 
 def flatten(nested_list):
     result = []
     for element in nested_list:
         if isinstance(element, list):
-            result.extend(flatten(element))  # 递归调用
+            result.extend(flatten(element))
         else:
             result.append(element)
     return result
