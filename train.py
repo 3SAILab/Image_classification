@@ -77,8 +77,8 @@ else:
     logging.info(f"❌ 此次训练未设置和固定随机种子")
 
 # 在设置好随机种子后，开始导入数据集
-from DataSet.dataloader import random_train_dataloader, random_eval_dataloader, layer_train_dataloader, layer_eval_dataloader
-from visualization.visualization2 import draw_confusion_matrix #, plot_dataset_distribution, 
+from dataset.dataloader import random_train_dataloader, random_eval_dataloader, layer_train_dataloader, layer_eval_dataloader
+from visualization.visualization import draw_confusion_matrix #, plot_dataset_distribution, 
 
 def train(
     train_loader, 

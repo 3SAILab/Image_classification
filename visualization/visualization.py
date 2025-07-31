@@ -1,38 +1,18 @@
-import sys
-import os
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from DataSet.dataloader import random_train_dataloader, random_eval_dataloader, layer_train_dataloader, layer_eval_dataloader, random_eval_num, random_train_num, layer_eval_num, layer_train_num
-from DataSet.dataset import t_small_num_dict, big_small_dict
+from dataset.dataset import data
 import matplotlib.pyplot as plt
 import numpy as np
-import torch
-import json
-
-config_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "config.json")
-with open(config_path, 'r') as f:
-    config = json.load(f)
-
-num_classes = config['num_classes']
-device = config['device']
-
-script_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-model_path = os.path.join(os.path.join(script_dir, "model"), "model.pth")
-
-train_rate = 0.9
-eval_rate = 1 - train_rate
 
 plt.rcParams['font.family'] = ['SimHei']
 
 def plot_dataset_distribution(
-    spilt_type, 
     train_small_num_dicts, 
     eval_small_num_dicts):
     train = list(train_small_num_dicts.values())
     eval = list(eval_small_num_dicts.values())
-    all_labels = list(t_small_num_dict.keys())
-    t_small_num = list(t_small_num_dict.values())
+    all_labels = list(data["t_small_num_dict"].keys())
+    t_small_num = list(data["t_small_num_dict"].values())
 
-    fig, ax = plt.subplots(figsize=(12, 8))
+    _, ax = plt.subplots(figsize=(12, 8))
     
     x = range(len(all_labels))
     width = 0.7
@@ -53,7 +33,7 @@ def plot_dataset_distribution(
     _, y_max = ax.get_ylim()
     y_text = y_max * 0.85 
     
-    big_label_boundaries = big_small_dict.keys()
+    big_label_boundaries = data["big_small_dict"].keys()
     for big_label, position in zip(big_label_boundaries, range(5, len(all_labels) + 1, 5)):
         if position >= 0:
             ax.axvline(x=position - 0.5, color='gray', linestyle='--', alpha=0.7)
@@ -135,7 +115,7 @@ class ConfusionMatrix():
             plt.show()
 
 def draw_confusion_matrix(pred_list, true_list):
-    data = ConfusionMatrix(num_classes)
-    data.update(pred_list, true_list)
-    data.summary()
-    data.plot(t_small_num_dict.keys())
+    confusion_matrix = ConfusionMatrix(len(data["small_label_idx_dict"]))
+    confusion_matrix.update(pred_list, true_list)
+    confusion_matrix.summary()
+    confusion_matrix.plot(list(data["small_label_idx_dict"].keys()))

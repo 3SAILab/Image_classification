@@ -1,6 +1,6 @@
-from DataSet.dataset import index_path_dict, index_small_dict, small_label_idx_dict
-from DataSet.dataset_spilt import spilt
-from DataSet.data_transform import transform
+from dataset.dataset import data
+from dataset.dataset_spilt import spilt
+from dataset.data_transform import transform
 from torch.utils.data import DataLoader, Dataset
 from PIL import Image
 import json
@@ -34,9 +34,9 @@ class MyDataSet(Dataset):
     
     def __getitem__(self, index):
         i = self.img_index_list[index]
-        img_path = index_path_dict[i]
+        img_path = data["index_path_dict"][i]
         img = Image.open(img_path).convert("RGB")
-        label = small_label_idx_dict[index_small_dict[i]]
+        label = data["small_label_idx_dict"][data["index_small_dict"][i]]
         if self.transform:
             img = self.transform(img)
         return img, label

@@ -1,4 +1,5 @@
 import os
+import json
 
 t_num = 0
 big_small_dict = {}
@@ -26,3 +27,25 @@ for big in os.listdir(data_path):
         t_small_num_dict[small] = small_num
 
 small_label_idx_dict = {k : v for k, v in zip(t_small_num_dict.keys(), range(len(list(t_small_num_dict.keys()))))}
+
+data = {
+    # 总图片数量
+    "total_num":t_num, 
+    # 大类转小类
+    "big_small_dict":big_small_dict, 
+    # 图片索引转图片路径
+    "index_path_dict":index_path_dict, 
+    # 图片索引转小类
+    "index_small_dict":index_small_dict, 
+    # 小类图片数量
+    "t_small_num_dict":t_small_num_dict, 
+    # 小类转图片索引
+    "t_small_index_dict":t_small_index_dict, 
+    # 小类转标签索引
+    "small_label_idx_dict":small_label_idx_dict
+}
+
+del t_num, big_small_dict, index_path_dict, index_small_dict, t_small_num_dict, t_small_index_dict, small_label_idx_dict
+
+with open("dataset.json", "w") as f:
+    json.dump(data, f, indent=4)
