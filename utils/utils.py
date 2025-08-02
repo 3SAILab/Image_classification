@@ -17,6 +17,7 @@ def set_seed(seed=42):
 def log(
     log_path, 
     log_name, 
+    flops,
     param_num, 
     num_epochs, 
     batch_size, 
@@ -28,6 +29,7 @@ def log(
     ema_train_loss_list, 
     ema_eval_loss_list):
     with open(os.path.join(log_path, log_name), 'w') as f:
+        f.write(f"FLOPs: {flops}\n")
         f.write(f"Parameters: {param_num}\n")
         f.write(f"Train Epochs: {num_epochs}\n")
         f.write(f"Batch Size: {batch_size}\n")
@@ -44,7 +46,17 @@ def update_ema(current_value, ema_alpha, last_ema=None):
         return current_value
     return ema_alpha * current_value + (1 - ema_alpha) * last_ema
 
-def show_model_parameters_num(model):
-    total_params = sum(p.numel() for p in model.parameters())
-    logging.info(f"➡️  Model Parameters: {total_params}")
-    return total_params
+def show_model_flops_and_params(model):
+    from thop import profile
+    import json
+
+    with open(os.path.join(os.path.dirname(os.path.dirname(__file__)), "config.json")) as f:
+        config = json.load(f)
+    device = config['device']
+
+    model.eval()
+    input = torch.randn(1, 3, 224, 224).to(device)
+    flops, params = profile(model, inputs=(input, ), verbose=False)
+    logging.info(f"➡️  FLOPs = {str(flops/1000**3)} G")
+    logging.info(f"➡️  Params = {str(params/1000**2)} M")
+    return flops, params

@@ -1,9 +1,9 @@
 import sys
 import os
 sys.path.append(os.path.dirname(__file__))
-from utils.utils import set_seed, show_model_parameters_num, update_ema, log
-# from models.wideresnet import WideResNet1 as m
-from torchvision.models import resnet50 as m
+from utils.utils import set_seed, show_model_flops_and_params, update_ema, log
+from models.vgg import VGG as m
+# from torchvision.models import densenet121 as m
 from torch.optim import lr_scheduler
 from tqdm import tqdm
 import matplotlib.pyplot as plt
@@ -94,6 +94,8 @@ def train(
     acc_list = []
     lr_list = []
     acc = 0.0
+    best_earliest_epoch = 0
+    best_acc = 0.0
 
     model = m(num_classes=num_classes).to(device)
     criterion = nn.CrossEntropyLoss().to(device)
@@ -110,7 +112,7 @@ def train(
 
     logging.info(f"❗ Train Started")
 
-    param_num = show_model_parameters_num(model)
+    flops, param = show_model_flops_and_params(model)
     # 开始训练
     for epoch in range(num_epochs):
         model.train()
@@ -142,20 +144,24 @@ def train(
             eval_loss_item, acc = eval(model, eval_loader, criterion)
         
         logging.info(f"➡️  Epoch {epoch+1}/{num_epochs}, Val Loss: {eval_loss_item:.2f}, Acc: \033[91m{acc:.2f}\033[0m")
+        # 保存最早最高准确率
+        if acc > best_acc:
+            best_acc = acc
+            best_earliest_epoch = epoch + 1
 
-        if (acc > max(acc_list) if acc_list else 0) and need_save_model == "y":
-            # 保存最佳模型
-            torch.save(
-                {
-                    'model_state_dict': model.state_dict(),
-                    'optimizer_state_dict': optimizer.state_dict(),
-                    'scheduler_state_dict': scheduler.state_dict(),
-                    'epoch': epoch,
-                    'learning_rate': optimizer.param_groups[0]['lr'],
-                }, 
-                os.path.join(model_path, f"{str(model.__class__.__name__)}_best.pth")
-            )
-            logging.info(f"✅ Best model saved to {model_path}")
+            if need_save_model == "y":
+                # 保存最佳模型
+                torch.save(
+                    {
+                        'model_state_dict': model.state_dict(),
+                        'optimizer_state_dict': optimizer.state_dict(),
+                        'scheduler_state_dict': scheduler.state_dict(),
+                        'epoch': epoch,
+                        'learning_rate': optimizer.param_groups[0]['lr'],
+                    }, 
+                    os.path.join(model_path, f"{str(model.__class__.__name__)}_best.pth")
+                )
+                logging.info(f"✅ Best model saved to {model_path}")
 
         eval_loss.append(eval_loss_item)
         acc_list.append(acc)
@@ -164,7 +170,7 @@ def train(
         lr_list.append(current_lr)
         scheduler.step()
     
-    logging.info(f"❗ Train Best Acc: \033[91m{max(acc_list):.2f}\033[0m, Best Epoch: \033[91m{epoch_list[acc_list.index(max(acc_list)) + 1]}\033[0m")
+    logging.info(f"❗ Train Best Acc: \033[91m{best_acc:.2f}\033[0m, Best Epoch: \033[91m{best_earliest_epoch}\033[0m")
     logging.info('✅ Train Finished')
 
     # 保存最终模型
@@ -197,9 +203,9 @@ def train(
                 ema_eval_loss.append(update_ema(eval_loss[i], ema_alpha, ema_eval_loss[i-1]))
         # 记录日志
         if log_name != "x":
-            log(log_path, log_name, param_num, num_epochs, batch_size, lr, train_loss, eval_loss, acc_list, lr_list, ema_train_loss, ema_eval_loss)
+            log(log_path, log_name, flops, param, num_epochs, batch_size, lr, train_loss, eval_loss, acc_list, lr_list, ema_train_loss, ema_eval_loss)
             logging.info(f"✅ Log saved to {os.path.join(log_path, log_name)}")
-
+        
         plt.figure(figsize=(18,8))
 
         plt.subplot(1, 6, 1)

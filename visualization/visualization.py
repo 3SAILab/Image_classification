@@ -1,7 +1,9 @@
 from dataset.dataset import data
 import matplotlib.pyplot as plt
+import matplotlib
 import numpy as np
 
+matplotlib.use('Agg') 
 plt.rcParams['font.family'] = ['SimHei']
 
 def plot_dataset_distribution(
