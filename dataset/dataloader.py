@@ -11,6 +11,8 @@ with open(config_path, 'r') as f:
     config = json.load(f)
 
 batch_size = config['batch_size']
+num_workers = config['num_workers']
+prefetch_factor = config['prefetch_factor']
 
 def flatten(nested_list):
     result = []
@@ -55,7 +57,10 @@ random_train_dataloader = DataLoader(
     batch_size=batch_size, 
     shuffle=True,
     drop_last=False,
-    pin_memory=True
+    pin_memory=True,
+    persistent_workers=True,
+    num_workers=num_workers,
+    prefetch_factor=prefetch_factor,
 )
 
 random_eval_dataset = MyDataSet(
@@ -66,9 +71,12 @@ random_eval_dataset = MyDataSet(
 random_eval_dataloader = DataLoader(
     random_eval_dataset,
     batch_size=batch_size, 
-    shuffle=True,
+    shuffle=False,
     drop_last=False,
-    pin_memory=True
+    pin_memory=True,
+    persistent_workers=True,
+    num_workers=num_workers,
+    prefetch_factor=prefetch_factor
 )
 
 layer_train_num, layer_eval_num, layer_train_index, layer_eval_index = spilt(
@@ -85,7 +93,10 @@ layer_train_dataloader = DataLoader(
     batch_size=batch_size, 
     shuffle=True,
     drop_last=False,
-    pin_memory=True
+    pin_memory=True,
+    persistent_workers=True,
+    num_workers=num_workers,
+    prefetch_factor=prefetch_factor
 )
 layer_eval_dataset = MyDataSet(
     layer_eval_num, 
@@ -95,7 +106,10 @@ layer_eval_dataset = MyDataSet(
 layer_eval_dataloader = DataLoader(
     layer_eval_dataset,
     batch_size=batch_size, 
-    shuffle=True,
+    shuffle=False,
     drop_last=False,
-    pin_memory=True
+    pin_memory=True,
+    persistent_workers=True,
+    num_workers=num_workers,
+    prefetch_factor=prefetch_factor
 )

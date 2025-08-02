@@ -37,7 +37,7 @@ data = {
     "index_path_dict":index_path_dict, 
     # 图片索引转小类
     "index_small_dict":index_small_dict, 
-    # 小类图片数量
+    # 小类查图片数量
     "t_small_num_dict":t_small_num_dict, 
     # 小类转图片索引
     "t_small_index_dict":t_small_index_dict, 

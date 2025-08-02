@@ -6,11 +6,11 @@ class BasicBlock(nn.Module):
     def __init__(self, in_planes, out_planes, stride, dropRate=0.5):
         super(BasicBlock, self).__init__()
         self.bn1 = nn.BatchNorm2d(in_planes)
-        self.relu1 = nn.ReLU(inplace=True)
+        self.relu1 = nn.PReLU()
         self.conv1 = nn.Conv2d(in_planes, out_planes, kernel_size=3, stride=stride,
                                padding=1, bias=False)
         self.bn2 = nn.BatchNorm2d(out_planes)
-        self.relu2 = nn.ReLU(inplace=True)
+        self.relu2 = nn.PReLU()
         self.conv2 = nn.Conv2d(out_planes, out_planes, kernel_size=3, stride=1,
                                padding=1, bias=False)
         self.droprate = dropRate
@@ -58,7 +58,7 @@ class WideResNet1(nn.Module):
         self.conv4 = NetworkBlock(n, nChannels[2], nChannels[3], block, 2, dropRate)
         # global average pooling and classifier
         self.bn = nn.BatchNorm2d(nChannels[3])
-        self.relu = nn.ReLU(inplace=True)
+        self.relu = nn.PReLU()
         self.fc = nn.Linear(nChannels[3], num_classes)
         self.nChannels = nChannels[3]
 
@@ -77,12 +77,14 @@ class WideResNet1(nn.Module):
         out = self.conv3(out)
         out = self.conv4(out)
         out = self.relu(self.bn(out))
-        out = F.avg_pool2d(out, 8)
+        out = F.adaptive_avg_pool2d(out, (1, 1))
         out = out.view(-1, self.nChannels)
         return self.fc(out)
 
 if __name__ == "__main__":
     model = WideResNet1(depth=28, num_classes=25, widen_factor=8, dropRate=0.5)
-    print(model)
+    random_input = torch.randn(1, 3, 32, 32)
+    output = model(random_input)
+    print(output.shape)
     total_params = sum(p.numel() for p in model.parameters())
     print(f"➡️  Model Parameters: {total_params}")

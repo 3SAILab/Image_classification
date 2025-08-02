@@ -8,7 +8,7 @@ class BasicBlock(nn.Module):
         self.conv1 = nn.Conv2d(in_channels=in_channel, out_channels=out_channel,
                                kernel_size=3, stride=stride, padding=1, bias=False)
         self.bn1 = nn.BatchNorm2d(out_channel)
-        self.relu = nn.ReLU()
+        self.relu = nn.PReLU()
         self.conv2 = nn.Conv2d(in_channels=out_channel, out_channels=out_channel,
                                kernel_size=3, stride=1, padding=1, bias=False)
         self.bn2 = nn.BatchNorm2d(out_channel)
@@ -51,7 +51,7 @@ class Bottleneck(nn.Module):
         self.conv3 = nn.Conv2d(in_channels=width, out_channels=out_channel*self.expansion,
                                kernel_size=1, stride=1, bias=False)  # unsqueeze channels
         self.bn3 = nn.BatchNorm2d(out_channel*self.expansion)
-        self.relu = nn.ReLU(inplace=True)
+        self.relu = nn.PReLU()
         self.downsample = downsample
 
     def forward(self, x):
@@ -77,7 +77,6 @@ class Bottleneck(nn.Module):
 
 
 class ResNet(nn.Module):
-
     def __init__(self,
                  block,
                  blocks_num,
@@ -95,7 +94,7 @@ class ResNet(nn.Module):
         self.conv1 = nn.Conv2d(3, self.in_channel, kernel_size=7, stride=2,
                                padding=3, bias=False)
         self.bn1 = nn.BatchNorm2d(self.in_channel)
-        self.relu = nn.ReLU(inplace=True)
+        self.relu = nn.PReLU()
         self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
         self.layer1 = self._make_layer(block, 64, blocks_num[0])
         self.layer2 = self._make_layer(block, 128, blocks_num[1], stride=2)

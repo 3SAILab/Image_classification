@@ -2,7 +2,8 @@ import sys
 import os
 sys.path.append(os.path.dirname(__file__))
 from utils.utils import set_seed, show_model_parameters_num, update_ema, log
-from model_code.mobilenetv2 import MobileNetV2 as m
+# from models.wideresnet import WideResNet1 as m
+from torchvision.models import resnet50 as m
 from torch.optim import lr_scheduler
 from tqdm import tqdm
 import matplotlib.pyplot as plt
