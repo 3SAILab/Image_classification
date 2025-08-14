@@ -72,17 +72,20 @@ def train(
         # 验证
         if epoch == num_epochs - 1:
             eval_loss_item, acc = eval(
-                model, 
-                eval_loader, 
-                criterion, 
-                visual_matrix=True,
-                draw_confusion_matrix=draw_confusion_matrix
+                model = model, 
+                eval_loader = eval_loader, 
+                criterion = criterion, 
+                device = device,
+                visual_matrix = True,
+                draw_confusion_matrix = draw_confusion_matrix
             )
         else:
             eval_loss_item, acc = eval(
                 model, 
                 eval_loader, 
-                criterion
+                criterion,
+                device=device,
+                visual_matrix=False
             )
         
         logging.info(f"➡️  Epoch {epoch+1}/{num_epochs}, Val Loss: {eval_loss_item:.2f}, Acc: \033[91m{acc:.2f}\033[0m")
