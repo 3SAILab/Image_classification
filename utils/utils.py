@@ -50,7 +50,7 @@ def show_model_flops_and_params(model):
     from thop import profile
     import json
 
-    with open(os.path.join(os.path.dirname(os.path.dirname(__file__)), "config.json")) as f:
+    with open(os.path.join(os.path.dirname(os.path.dirname(__file__)), "configs/config.json")) as f:
         config = json.load(f)
     device = config['device']
 
